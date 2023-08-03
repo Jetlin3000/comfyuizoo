@@ -1,3 +1,38 @@
+# ComfyUI 简体中文版 【Zho】
+
+### 使用方法
+
+本地部署
+
+- 未部署过的小伙伴：
+点击右上角code选择下载zip文件，解压之后运行就可看到中文简体版的界面。
+
+- 已部署的小伙伴：
+只需把web文件夹下载到本地，覆盖掉原来的web文件夹即可。
+
+- 另外，需要中文版Manager的小伙伴，移步[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
+
+
+Google Colab 云部署：
+- 我制作的[ComfyUI 云部署1.0](https://colab.research.google.com/drive/1TxdWQyN71v56TyMr6AFUv0PZ_jjMUExb?usp=sharing)：已载入简体中文版界面和简体中文版Manager，同时也支持最新SDXL1.0模型，并且提供了支持中文输入的标准工作流
+
+- 有自己colab云部署的小伙伴，只需git安装此库即可
+
+
+### 更新日志
+
+20230803 
+- 完成ComfyUI界面汉化 ，代码详见：https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git
+- 完成ComfyUI Manager汉化 ，代码详见：https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git
+
+
+
+------------------------------------------------------------
+
+
+
+
+
 ComfyUI
 =======
 A powerful and modular stable diffusion GUI and backend.
