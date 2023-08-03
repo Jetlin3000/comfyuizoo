@@ -35,7 +35,7 @@ Google Colab 云部署：
 ### 更新日志
 
 20230803 
-- 完成ComfyUI界面汉化,并新增ZHO主题配色 ，代码详见：[ComfyUI 中文简体版界面](https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git)
+- 完成ComfyUI界面汉化，并新增ZHO主题配色 ，代码详见：[ComfyUI 中文简体版界面](https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git)
 - 完成ComfyUI Manager汉化 ，代码详见：[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
 
 
