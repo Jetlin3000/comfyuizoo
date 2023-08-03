@@ -1,5 +1,7 @@
 # ComfyUI 简体中文版 【Zho】
 
+声明：我并不是ComfyUI的作者，我只是对界面做了汉化+新增了一个主题配色，原作者在[ComfyUI](https://github.com/comfyanonymous/ComfyUI)
+
 ### 操作面板 + ZHO配色主题
 
 ![Dingtalk_20230803173143](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/8c4b11d4-c698-4da8-93fd-f384e749dadc)![Dingtalk_20230803173317](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/5f1c1026-9039-49b6-bc73-71a7b1e4e3c9)
