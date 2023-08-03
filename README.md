@@ -1,5 +1,18 @@
 # ComfyUI 简体中文版 【Zho】
 
+### 操作面板 + ZHO配色主题
+
+![Dingtalk_20230803173143](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/8c4b11d4-c698-4da8-93fd-f384e749dadc)![Dingtalk_20230803173317](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/5f1c1026-9039-49b6-bc73-71a7b1e4e3c9)
+
+![Dingtalk_20230803173252](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/2bbc031f-da5d-4e3d-a0c9-6ddffa8593e0)
+
+
+
+
+
+![Dingtalk_20230803173631](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/61e06dc7-515b-4d02-8647-3e6c422f1a6a)
+
+
 ### 使用方法
 
 本地部署
@@ -22,7 +35,7 @@ Google Colab 云部署：
 ### 更新日志
 
 20230803 
-- 完成ComfyUI界面汉化 ，代码详见：[ComfyUI 中文简体版界面](https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git)
+- 完成ComfyUI界面汉化,并新增ZHO主题配色 ，代码详见：[ComfyUI 中文简体版界面](https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git)
 - 完成ComfyUI Manager汉化 ，代码详见：[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
 
 
