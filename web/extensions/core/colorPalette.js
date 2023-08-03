@@ -237,7 +237,7 @@ const colorPalettes = {
 
 const id = "Comfy.ColorPalette";
 const idCustomColorPalettes = "Comfy.CustomColorPalettes";
-const defaultColorPaletteId = "dark";
+const defaultColorPaletteId = "zho";
 const els = {}
 // const ctxMenu = LiteGraph.ContextMenu;
 app.registerExtension({
