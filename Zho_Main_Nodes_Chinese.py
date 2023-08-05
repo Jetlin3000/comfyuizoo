@@ -78,7 +78,7 @@ def common_ksampler(model, seed, steps, cfg, sampler_name, scheduler, positive, 
     return (out, )
 
 # KSampler
-class KSampler_Zho:
+class 采样器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required":
@@ -105,7 +105,7 @@ class KSampler_Zho:
         return common_ksampler(模型, 种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, 降噪值=denoise)
 
 # KSamplerAdvanced
-class KSamplerAdvanced_Zho:
+class 高级采样器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required":
@@ -143,7 +143,7 @@ class KSamplerAdvanced_Zho:
 #---------------------------------
 #加载器
 # CheckpointLoaderSimple
-class CheckpointLoaderSimple_Zho:
+class 主模型加载器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "主模型名称": (folder_paths.get_filename_list("checkpoints"), ),
@@ -160,7 +160,7 @@ class CheckpointLoaderSimple_Zho:
         return out
 
 # VAELoader
-class VAELoader_Zho:
+class VAE加载器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "VAE模型名称": (folder_paths.get_filename_list("vae"), )}}
@@ -177,7 +177,7 @@ class VAELoader_Zho:
         return (vae,)
 
 # LoraLoader
-class LoraLoader_Zho:
+class Lora加载器_Zho:
     def __init__(self):
         self.loaded_lora = None
 
@@ -217,7 +217,7 @@ class LoraLoader_Zho:
         return (model_lora, clip_lora)
 
 # ControlNetLoader
-class ControlNetLoader_Zho:
+class ControlNet加载器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "CtrlNet模型": (folder_paths.get_filename_list("controlnet"), )}}
@@ -234,7 +234,7 @@ class ControlNetLoader_Zho:
         return (controlnet,)
 
 # GLIGENLoader
-class GLIGENLoader_Zho:
+class GLIGEN加载器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "GLIGEN模型": (folder_paths.get_filename_list("gligen"), )}}
@@ -253,7 +253,7 @@ class GLIGENLoader_Zho:
 #---------------------------------
 #条件condition
 # CLIPTextEncode
-class CLIPTextEncode_Zho:
+class 提示词_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"文本": ("STRING", {"multiline": True}), "CLIP模型": ("CLIP", )}}
@@ -269,7 +269,7 @@ class CLIPTextEncode_Zho:
         return ([[cond, {"pooled_output": pooled}]], )
 
 # CLIP跳过层
-class CLIPSetLastLayer_Zho:
+class CLIP跳过层_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "CLIP模型": ("CLIP", ),
@@ -287,7 +287,7 @@ class CLIPSetLastLayer_Zho:
         return (clip,)
 
 # GLIGEN
-class GLIGENTextBoxApply_Zho:
+class GLIGEN区域设定_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"条件去往": ("CONDITIONING", ),
@@ -320,7 +320,7 @@ class GLIGENTextBoxApply_Zho:
         return (c, )
 
 # CN
-class ControlNetApply_Zho:
+class ControlNet_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"条件": ("CONDITIONING", ),
@@ -353,7 +353,7 @@ class ControlNetApply_Zho:
 #---------------------------------
 #条件latent
 # 空白潜空间图像
-class EmptyLatentImage_Zho:
+class 初始潜空间_Zho:
     def __init__(self, device="cpu"):
         self.device = device
 
@@ -373,7 +373,7 @@ class EmptyLatentImage_Zho:
         return ({"samples":latent}, )
 
 # VAE解码
-class VAEDecode_Zho:
+class VAE解码器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "samples": ("LATENT", ), "VAE模型": ("VAE", )}}
@@ -387,7 +387,7 @@ class VAEDecode_Zho:
         return (VAE模型.decode(samples["samples"]), )
 
 # VAE编码
-class VAEEncode_Zho:
+class VAE编码器_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "像素": ("IMAGE", ), "VAE模型": ("VAE", )}}
@@ -413,7 +413,7 @@ class VAEEncode_Zho:
         return ({"samples":t}, )
 
 # 提示词VAE编码 inpaint
-class VAEEncodeForInpaint_Zho:
+class VAE编码器_重绘_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": { "像素": ("IMAGE", ), "VAE模型": ("VAE", ), "蒙版": ("MASK", ), "扩大蒙版": ("INT", {"default": 6, "min": 0, "max": 64, "step": 1}),}}
@@ -453,7 +453,7 @@ class VAEEncodeForInpaint_Zho:
 
         return ({"samples":t, "noise_mask": (mask_erosion[:,:,:x,:y].round())}, )
 
-class LatentFromBatch_Zho:
+class 批次选择_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"潜空间图像": ("LATENT",),
@@ -464,7 +464,7 @@ class LatentFromBatch_Zho:
     RETURN_NAMES = ("潜空间",)
     FUNCTION = "frombatch"
 
-    CATEGORY = "latent/batch"
+    CATEGORY = "Zho汉化模块组/潜空间"
 
     def frombatch(self, 潜空间图像, 批次编号, 长度):
         s = 潜空间图像.copy()
@@ -486,7 +486,7 @@ class LatentFromBatch_Zho:
             s["batch_index"] = 潜空间图像["batch_index"][批次编号:批次编号 + 长度]
         return (s,)
 
-class RepeatLatentBatch_Zho:
+class 批次复制_Zho:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {"潜空间图像": ("LATENT",),
@@ -513,17 +513,16 @@ class RepeatLatentBatch_Zho:
             s["batch_index"] = s["batch_index"] + [x + (i * offset) for i in range(1, 数量) for x in s["batch_index"]]
         return (s,)
 
-class LatentUpscale_Zho:
-    放大方法 = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
-    剪裁方法 = ["disabled", "center"]
+class 潜空间放大_Zho:
+    upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
+    crop_methods = ["disabled", "center"]
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"潜空间图像": ("LATENT",),
-                             "放大方法": (cls.放大方法,),
-                             "宽度": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
-                             "高度": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
-                             "剪裁": (cls.剪裁方法,)}}
+        return {"required": { "潜空间图像": ("LATENT",), "放大方法": (s.upscale_methods,),
+                              "宽度": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                              "高度": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                              "剪裁": (s.crop_methods,)}}
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("潜空间",)
     FUNCTION = "upscale"
@@ -532,17 +531,17 @@ class LatentUpscale_Zho:
 
     def upscale(self, 潜空间图像, 放大方法, 宽度, 高度, 剪裁):
         s = 潜空间图像.copy()
-        s["samples"] = comfy.utils.common_upscale(潜空间图像["samples"], 宽度 // 8, 高度 // 8, 放大方法, 剪裁)
+        s["潜空间图像"] = comfy.utils.common_upscale(潜空间图像["潜空间图像"], 宽度 // 8, 高度 // 8, 放大方法, 剪裁)
         return (s,)
 
 #latent放大模型
-class LatentUpscaleBy_Zho:
+class 潜空间放大方式_Zho:
     放大方法 = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
 
     @classmethod
-    def 输入类型(cls):
+    def INPUT_TYPES(s):
         return {"required": {"潜空间图像": ("LATENT",),
-                             "放大方法": (cls.放大方法,),
+                             "放大方法": (s.放大方法,),
                              "比例": ("FLOAT", {"default": 1.5, "min": 0.01, "max": 8.0, "step": 0.01}),}}
     RETURN_TYPES = ("LATENT",)
     RETURN_NAMES = ("潜空间",)
@@ -552,14 +551,14 @@ class LatentUpscaleBy_Zho:
 
     def upscale(self, 潜空间图像, 放大方法, 比例):
         s = 潜空间图像.copy()
-        宽度 = round(潜空间图像["samples"].shape[3] * 比例)
-        高度 = round(潜空间图像["samples"].shape[2] * 比例)
-        s["samples"] = comfy.utils.common_upscale(潜空间图像["samples"], 宽度, 高度, 放大方法, "disabled")
+        宽度 = round(潜空间图像["潜空间图像"].shape[3] * 比例)
+        高度 = round(潜空间图像["潜空间图像"].shape[2] * 比例)
+        s["潜空间图像"] = comfy.utils.common_upscale(潜空间图像["潜空间图像"], 宽度, 高度, 放大方法, "disabled")
         return (s,)
 
 #---------------------------------
 #图像
-class SaveImage_Zho:
+class 图像保存_Zho:
     def __init__(self):
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
@@ -607,28 +606,14 @@ class SaveImage_Zho:
 
         return {"ui": {"图像": results}}
 
-#预览图像
-class PreviewImage(SaveImage)_Zho:
-    def __init__(self):
-        self.output_dir = folder_paths.get_temp_directory()
-        self.type = "temp"
-        self.prefix_append = "_temp_" + ''.join(random.choice("abcdefghijklmnopqrstupvxyz") for x in range(5))
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required":
-                    {"图像": ("IMAGE", ), },
-                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
-                }
-
 #加载图像
-class LoadImage_Zho:
+class 图像加载_Zho:
     @classmethod
     def INPUT_TYPES(s):
         input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
         return {"required":
-                    {"图像": (sorted(files), )},
+                    {"image": (sorted(files), )},
                 }
 
     CATEGORY = "Zho汉化模块组/图像"
@@ -636,46 +621,46 @@ class LoadImage_Zho:
     RETURN_TYPES = ("IMAGE", "MASK")
     RETURN_NAMES = ("图像", "蒙版")
     FUNCTION = "load_image"
-    def load_image(self, 图像):
-        image_path = folder_paths.get_annotated_filepath(图像)
+    def load_image(self, image):
+        image_path = folder_paths.get_annotated_filepath(image)
         i = Image.open(image_path)
         i = ImageOps.exif_transpose(i)
-        图像 = i.convert("RGB")
-        图像 = np.array(图像).astype(np.float32) / 255.0
-        图像 = torch.from_numpy(图像)[None,]
+        image = i.convert("RGB")
+        image = np.array(image).astype(np.float32) / 255.0
+        image = torch.from_numpy(image)[None,]
         if 'A' in i.getbands():
             mask = np.array(i.getchannel('A')).astype(np.float32) / 255.0
             mask = 1. - torch.from_numpy(mask)
         else:
             mask = torch.zeros((64,64), dtype=torch.float32, device="cpu")
-        return (图像, mask)
+        return (image, mask)
 
     @classmethod
-    def IS_CHANGED(s, 图像):
-        image_path = folder_paths.get_annotated_filepath(图像)
+    def IS_CHANGED(s, image):
+        image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, 'rb') as f:
             m.update(f.read())
         return m.digest().hex()
 
     @classmethod
-    def VALIDATE_INPUTS(s, 图像):
-        if not folder_paths.exists_annotated_filepath(图像):
-            return "Invalid image file: {}".format(图像)
+    def VALIDATE_INPUTS(s, image):
+        if not folder_paths.exists_annotated_filepath(image):
+            return "Invalid image file: {}".format(image)
 
         return True
 
 #放大图像
-class ImageScale_Zho:
+class 图像放大_Zho:
     upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic"]
     crop_methods = ["disabled", "center"]
 
     @classmethod
-    def 输入类型(cls):
-        return {"required": {"图像": ("IMAGE",), "放大方法": (cls.upscale_methods,),
+    def INPUT_TYPES(s):
+        return {"required": {"图像": ("IMAGE",), "放大方法": (s.upscale_methods,),
                              "宽度": ("INT", {"default": 512, "min": 1, "max": MAX_RESOLUTION, "step": 1}),
                              "高度": ("INT", {"default": 512, "min": 1, "max": MAX_RESOLUTION, "step": 1}),
-                             "剪裁": (cls.crop_methods,)}}
+                             "剪裁": (s.crop_methods,)}}
     RETURN_TYPES = ("IMAGE",)
     RETURN_NAMES = ("图像", )
     FUNCTION = "upscale"
@@ -689,7 +674,7 @@ class ImageScale_Zho:
         return (s,)
 
 #放大图像-模型
-class ImageScaleBy_Zho:
+class 图像放大方式_Zho:
     upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic"]
 
     @classmethod
@@ -711,7 +696,7 @@ class ImageScaleBy_Zho:
         return (s,)
 
 #反转图像
-class ImageInvert_Zho:
+class 图像反转_Zho:
 
     @classmethod
     def INPUT_TYPES(s):
@@ -729,67 +714,28 @@ class ImageInvert_Zho:
 
 #分类
 NODE_CLASS_MAPPINGS = {
-    "KSampler_Zho": KSampler_Zho,
-    "KSamplerAdvanced_Zho": KSamplerAdvanced_Zho,
-    "CheckpointLoaderSimple_Zho": CheckpointLoaderSimple_Zho,
-    "VAELoader_Zho": VAELoader_Zho,
-    "LoraLoader_Zho": LoraLoader_Zho,
-    "ControlNetLoader_Zho": ControlNetLoader_Zho,
-    "GLIGENLoader_Zho": GLIGENLoader_Zho,
-    "CLIPTextEncode_Zho": CLIPTextEncode_Zho,
-    "CLIPSetLastLayer_Zho": CLIPSetLastLayer_Zho,
-    "GLIGENTextBoxApply_Zho": GLIGENTextBoxApply_Zho,
-    "ControlNetApply_Zho": ControlNetApply_Zho,
-    "EmptyLatentImage_Zho": EmptyLatentImage_Zho,
-    "VAEDecode_Zho": VAEDecode_Zho,
-    "VAEEncode_Zho": VAEEncode_Zho,
-    "VAEEncodeForInpaint_Zho": VAEEncodeForInpaint_Zho,
-    "LatentFromBatch_Zho": LatentFromBatch_Zho,
-    "RepeatLatentBatch_Zho": RepeatLatentBatch_Zho,
-    "LatentUpscale_Zho": LatentUpscale_Zho,
-    "LatentUpscaleBy_Zho": LatentUpscaleBy_Zho,
-    "SaveImage_Zho": SaveImage_Zho,
-    "PreviewImage(SaveImage)_Zho": PreviewImage(SaveImage)_Zho,
-    "LoadImage_Zho": LoadImage_Zho,
-    "ImageScale_Zho": ImageScale_Zho,
-    "ImageScaleBy_Zho": ImageScaleBy_Zho,
-    "ImageInvert_Zho": ImageInvert_Zho,
+    "采样器_Zho": 采样器_Zho,
+    "高级采样器_Zho": 高级采样器_Zho,
+    "主模型加载器_Zho": 主模型加载器_Zho,
+    "VAE加载器_Zho": VAE加载器_Zho,
+    "Lora加载器_Zho": Lora加载器_Zho,
+    "ControlNet加载器_Zho": ControlNet加载器_Zho,
+    "GLIGEN加载器_Zho": GLIGEN加载器_Zho,
+    "提示词_Zho": 提示词_Zho,
+    "CLIP跳过层_Zho": CLIP跳过层_Zho,
+    "GLIGEN区域设定_Zho": GLIGEN区域设定_Zho,
+    "ControlNet_Zho": ControlNet_Zho,
+    "初始潜空间_Zho": 初始潜空间_Zho,
+    "VAE解码器_Zho": VAE解码器_Zho,
+    "VAE编码器_Zho": VAE编码器_Zho,
+    "VAE编码器_重绘_Zho": VAE编码器_重绘_Zho,
+    "批次选择_Zho": 批次选择_Zho,
+    "批次复制_Zho": 批次复制_Zho,
+    "潜空间放大_Zho": 潜空间放大_Zho,
+    "潜空间放大方式_Zho": 潜空间放大方式_Zho,
+    "图像保存_Zho": 图像保存_Zho,
+    "图像加载_Zho": 图像加载_Zho,
+    "图像放大_Zho": 图像放大_Zho,
+    "图像放大方式_Zho": 图像放大方式_Zho,
+    "图像反转_Zho": 图像反转_Zho,
 }
-
-NODE_DISPLAY_NAME_MAPPINGS = {
-    "KSampler_Zho": 采样器_Zho,
-    "KSamplerAdvanced_Zho": 高级采样器_Zho,
-    "CheckpointLoaderSimple_Zho": 主模型加载器_Zho,
-    "VAELoader_Zho": VAE加载器_Zho,
-    "LoraLoader_Zho": Lora加载器_Zho,
-    "ControlNetLoader_Zho": ControlNet加载器_Zho,
-    "GLIGENLoader_Zho": GLIGEN加载器_Zho,
-    "CLIPTextEncode_Zho": 提示词_Zho,
-    "CLIPSetLastLayer_Zho": CLIP跳过层_Zho,
-    "GLIGENTextBoxApply_Zho": GLIGEN区域设定_Zho,
-    "ControlNetApply_Zho": ControlNet_Zho,
-    "EmptyLatentImage_Zho": 初始潜空间_Zho,
-    "VAEDecode_Zho": VAE解码器_Zho,
-    "VAEEncode_Zho": VAE编码器_Zho,
-    "VAEEncodeForInpaint_Zho": VAE编码器_重绘_Zho,
-    "LatentFromBatch_Zho": 批次选择_Zho,
-    "RepeatLatentBatch_Zho": 批次复制_Zho,
-    "LatentUpscale_Zho": 潜空间放大_Zho,
-    "LatentUpscaleBy_Zho": 潜空间放大方式_Zho,
-    "SaveImage_Zho": 图像保存_Zho,
-    "PreviewImage(SaveImage)_Zho": 图像预览_Zho,
-    "LoadImage_Zho": 图像加载_Zho,
-    "ImageScale_Zho": 图像放大_Zho,
-    "ImageScaleBy_Zho": 图像放大方法_Zho,
-    "ImageInvert_Zho": 图像反转_Zho,
-}
-
-
-
-
-
-
-
-
-
-
