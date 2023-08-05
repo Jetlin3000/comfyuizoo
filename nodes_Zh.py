@@ -43,7 +43,7 @@ MAX_RESOLUTION=8192
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #精选常用模块
-
+#---------------------------------
 #采样器
 def common_ksampler(model, seed, steps, cfg, sampler_name, scheduler, positive, negative, latent, denoise=1.0, disable_noise=False, start_step=None, last_step=None, force_full_denoise=False):
     device = comfy.model_management.get_torch_device()
@@ -138,12 +138,130 @@ class KSamplerAdvanced:
             disable_noise = True
         return common_ksampler(model, noise_seed, steps, cfg, sampler_name, scheduler, positive, negative, latent_image, denoise=denoise, disable_noise=disable_noise, start_step=start_at_step, last_step=end_at_step, force_full_denoise=force_full_denoise)
 
+#---------------------------------
 #加载器
+#主模型加载
+class CheckpointLoaderSimple:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
+                             }}
+    RETURN_TYPES = ("MODEL", "CLIP", "VAE")
+    FUNCTION = "load_checkpoint"
 
+    CATEGORY = "loaders"
 
+    def load_checkpoint(self, ckpt_name, output_vae=True, output_clip=True):
+        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+        out = comfy.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        return out
 
+#VAE加载
+class VAELoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "vae_name": (folder_paths.get_filename_list("vae"), )}}
+    RETURN_TYPES = ("VAE",)
+    FUNCTION = "load_vae"
 
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+    CATEGORY = "loaders"
+
+    #TODO: scale factor?
+    def load_vae(self, vae_name):
+        vae_path = folder_paths.get_full_path("vae", vae_name)
+        vae = comfy.sd.VAE(ckpt_path=vae_path)
+        return (vae,)
+
+#lora加载
+class LoraLoader:
+    def __init__(self):
+        self.loaded_lora = None
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "model": ("MODEL",),
+                              "clip": ("CLIP", ),
+                              "lora_name": (folder_paths.get_filename_list("loras"), ),
+                              "strength_model": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
+                              "strength_clip": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
+                              }}
+    RETURN_TYPES = ("MODEL", "CLIP")
+    FUNCTION = "load_lora"
+
+    CATEGORY = "loaders"
+
+    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
+        if strength_model == 0 and strength_clip == 0:
+            return (model, clip)
+
+        lora_path = folder_paths.get_full_path("loras", lora_name)
+        lora = None
+        if self.loaded_lora is not None:
+            if self.loaded_lora[0] == lora_path:
+                lora = self.loaded_lora[1]
+            else:
+                temp = self.loaded_lora
+                self.loaded_lora = None
+                del temp
+
+        if lora is None:
+            lora = comfy.utils.load_torch_file(lora_path, safe_load=True)
+            self.loaded_lora = (lora_path, lora)
+
+        model_lora, clip_lora = comfy.sd.load_lora_for_models(model, clip, lora, strength_model, strength_clip)
+        return (model_lora, clip_lora)
+
+#CN加载
+class ControlNetLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "control_net_name": (folder_paths.get_filename_list("controlnet"), )}}
+
+    RETURN_TYPES = ("CONTROL_NET",)
+    FUNCTION = "load_controlnet"
+
+    CATEGORY = "loaders"
+
+    def load_controlnet(self, control_net_name):
+        controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
+        controlnet = comfy.sd.load_controlnet(controlnet_path)
+        return (controlnet,)
+
+#CN-条件加载
+class DiffControlNetLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "model": ("MODEL",),
+                              "control_net_name": (folder_paths.get_filename_list("controlnet"), )}}
+
+    RETURN_TYPES = ("CONTROL_NET",)
+    FUNCTION = "load_controlnet"
+
+    CATEGORY = "loaders"
+
+    def load_controlnet(self, model, control_net_name):
+        controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
+        controlnet = comfy.sd.load_controlnet(controlnet_path, model)
+        return (controlnet,)
+
+#GLIGEN加载
+class GLIGENLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "gligen_name": (folder_paths.get_filename_list("gligen"), )}}
+
+    RETURN_TYPES = ("GLIGEN",)
+    FUNCTION = "load_gligen"
+
+    CATEGORY = "loaders"
+
+    def load_gligen(self, gligen_name):
+        gligen_path = folder_paths.get_full_path("gligen", gligen_name)
+        gligen = comfy.sd.load_gligen(gligen_path)
+        return (gligen,)
+
+#---------------------------------
+#条件condition
 #提示词
 class CLIPTextEncode:
     @classmethod
@@ -159,7 +277,23 @@ class CLIPTextEncode:
         cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
         return ([[cond, {"pooled_output": pooled}]], )
 
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#clip跳过层
+class CLIPSetLastLayer:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip": ("CLIP", ),
+                              "stop_at_clip_layer": ("INT", {"default": -1, "min": -24, "max": -1, "step": 1}),
+                              }}
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "set_last_layer"
+
+    CATEGORY = "conditioning"
+
+    def set_last_layer(self, clip, stop_at_clip_layer):
+        clip = clip.clone()
+        clip.clip_layer(stop_at_clip_layer)
+        return (clip,)
+
 #条件合并
 class ConditioningCombine:
     @classmethod
@@ -340,7 +474,136 @@ class ConditioningSetTimestepRange:
             c.append(n)
         return (c, )
 
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#GLIGEN
+class GLIGENTextBoxApply:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"conditioning_to": ("CONDITIONING", ),
+                              "clip": ("CLIP", ),
+                              "gligen_textbox_model": ("GLIGEN", ),
+                              "text": ("STRING", {"multiline": True}),
+                              "width": ("INT", {"default": 64, "min": 8, "max": MAX_RESOLUTION, "step": 8}),
+                              "height": ("INT", {"default": 64, "min": 8, "max": MAX_RESOLUTION, "step": 8}),
+                              "x": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
+                              "y": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
+                             }}
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "append"
+
+    CATEGORY = "conditioning/gligen"
+
+    def append(self, conditioning_to, clip, gligen_textbox_model, text, width, height, x, y):
+        c = []
+        cond, cond_pooled = clip.encode_from_tokens(clip.tokenize(text), return_pooled=True)
+        for t in conditioning_to:
+            n = [t[0], t[1].copy()]
+            position_params = [(cond_pooled, height // 8, width // 8, y // 8, x // 8)]
+            prev = []
+            if "gligen" in n[1]:
+                prev = n[1]['gligen'][2]
+
+            n[1]['gligen'] = ("position", gligen_textbox_model, prev + position_params)
+            c.append(n)
+        return (c, )
+
+#CN
+class ControlNetApply:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"conditioning": ("CONDITIONING", ),
+                             "control_net": ("CONTROL_NET", ),
+                             "image": ("IMAGE", ),
+                             "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01})
+                             }}
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "apply_controlnet"
+
+    CATEGORY = "conditioning"
+
+    def apply_controlnet(self, conditioning, control_net, image, strength):
+        if strength == 0:
+            return (conditioning, )
+
+        c = []
+        control_hint = image.movedim(-1,1)
+        for t in conditioning:
+            n = [t[0], t[1].copy()]
+            c_net = control_net.copy().set_cond_hint(control_hint, strength)
+            if 'control' in t[1]:
+                c_net.set_previous_controlnet(t[1]['control'])
+            n[1]['control'] = c_net
+            n[1]['control_apply_to_uncond'] = True
+            c.append(n)
+        return (c, )
+
+#CN高级
+class ControlNetApplyAdvanced:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"positive": ("CONDITIONING", ),
+                             "negative": ("CONDITIONING", ),
+                             "control_net": ("CONTROL_NET", ),
+                             "image": ("IMAGE", ),
+                             "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
+                             "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001}),
+                             "end_percent": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001})
+                             }}
+
+    RETURN_TYPES = ("CONDITIONING","CONDITIONING")
+    RETURN_NAMES = ("positive", "negative")
+    FUNCTION = "apply_controlnet"
+
+    CATEGORY = "conditioning"
+
+    def apply_controlnet(self, positive, negative, control_net, image, strength, start_percent, end_percent):
+        if strength == 0:
+            return (positive, negative)
+
+        control_hint = image.movedim(-1,1)
+        cnets = {}
+
+        out = []
+        for conditioning in [positive, negative]:
+            c = []
+            for t in conditioning:
+                d = t[1].copy()
+
+                prev_cnet = d.get('control', None)
+                if prev_cnet in cnets:
+                    c_net = cnets[prev_cnet]
+                else:
+                    c_net = control_net.copy().set_cond_hint(control_hint, strength, (1.0 - start_percent, 1.0 - end_percent))
+                    c_net.set_previous_controlnet(prev_cnet)
+                    cnets[prev_cnet] = c_net
+
+                d['control'] = c_net
+                d['control_apply_to_uncond'] = False
+                n = [t[0], d]
+                c.append(n)
+            out.append(c)
+        return (out[0], out[1])
+
+#---------------------------------
+#条件condition
+#空白
+class EmptyLatentImage:
+    def __init__(self, device="cpu"):
+        self.device = device
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "width": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                              "height": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
+                              "batch_size": ("INT", {"default": 1, "min": 1, "max": 64})}}
+    RETURN_TYPES = ("LATENT",)
+    FUNCTION = "generate"
+
+    CATEGORY = "latent"
+
+    def generate(self, width, height, batch_size=1):
+        latent = torch.zeros([batch_size, 4, height // 8, width // 8])
+        return ({"samples":latent}, )
+
 #VAE解码
 class VAEDecode:
     @classmethod
@@ -446,582 +709,6 @@ class VAEEncodeForInpaint:
         t = vae.encode(pixels)
 
         return ({"samples":t, "noise_mask": (mask_erosion[:,:,:x,:y].round())}, )
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#保存latent
-class SaveLatent:
-    def __init__(self):
-        self.output_dir = folder_paths.get_output_directory()
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "samples": ("LATENT", ),
-                              "filename_prefix": ("STRING", {"default": "latents/ComfyUI"})},
-                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
-                }
-    RETURN_TYPES = ()
-    FUNCTION = "save"
-
-    OUTPUT_NODE = True
-
-    CATEGORY = "_for_testing"
-
-    def save(self, samples, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
-        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
-
-        # support save metadata for latent sharing
-        prompt_info = ""
-        if prompt is not None:
-            prompt_info = json.dumps(prompt)
-
-        metadata = None
-        if not args.disable_metadata:
-            metadata = {"prompt": prompt_info}
-            if extra_pnginfo is not None:
-                for x in extra_pnginfo:
-                    metadata[x] = json.dumps(extra_pnginfo[x])
-
-        file = f"{filename}_{counter:05}_.latent"
-
-        results = list()
-        results.append({
-            "filename": file,
-            "subfolder": subfolder,
-            "type": "output"
-        })
-
-        file = os.path.join(full_output_folder, file)
-
-        output = {}
-        output["latent_tensor"] = samples["samples"]
-        output["latent_format_version_0"] = torch.tensor([])
-
-        comfy.utils.save_torch_file(output, file, metadata=metadata)
-        return { "ui": { "latents": results } }
-
-
-#加载latent
-class LoadLatent:
-    @classmethod
-    def INPUT_TYPES(s):
-        input_dir = folder_paths.get_input_directory()
-        files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f)) and f.endswith(".latent")]
-        return {"required": {"latent": [sorted(files), ]}, }
-
-    CATEGORY = "_for_testing"
-
-    RETURN_TYPES = ("LATENT", )
-    FUNCTION = "load"
-
-    def load(self, latent):
-        latent_path = folder_paths.get_annotated_filepath(latent)
-        latent = safetensors.torch.load_file(latent_path, device="cpu")
-        multiplier = 1.0
-        if "latent_format_version_0" not in latent:
-            multiplier = 1.0 / 0.18215
-        samples = {"samples": latent["latent_tensor"].float() * multiplier}
-        return (samples, )
-
-    @classmethod
-    def IS_CHANGED(s, latent):
-        image_path = folder_paths.get_annotated_filepath(latent)
-        m = hashlib.sha256()
-        with open(image_path, 'rb') as f:
-            m.update(f.read())
-        return m.digest().hex()
-
-    @classmethod
-    def VALIDATE_INPUTS(s, latent):
-        if not folder_paths.exists_annotated_filepath(latent):
-            return "Invalid latent file: {}".format(latent)
-        return True
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#主模型-条件加载
-class CheckpointLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "config_name": (folder_paths.get_filename_list("configs"), ),
-                              "ckpt_name": (folder_paths.get_filename_list("checkpoints"), )}}
-    RETURN_TYPES = ("MODEL", "CLIP", "VAE")
-    FUNCTION = "load_checkpoint"
-
-    CATEGORY = "advanced/loaders"
-
-    def load_checkpoint(self, config_name, ckpt_name, output_vae=True, output_clip=True):
-        config_path = folder_paths.get_full_path("configs", config_name)
-        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
-        return comfy.sd.load_checkpoint(config_path, ckpt_path, output_vae=True, output_clip=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
-
-#主模型加载
-class CheckpointLoaderSimple:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
-                             }}
-    RETURN_TYPES = ("MODEL", "CLIP", "VAE")
-    FUNCTION = "load_checkpoint"
-
-    CATEGORY = "loaders"
-
-    def load_checkpoint(self, ckpt_name, output_vae=True, output_clip=True):
-        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
-        out = comfy.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
-        return out
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#DF加载
-class DiffusersLoader:
-    @classmethod
-    def INPUT_TYPES(cls):
-        paths = []
-        for search_path in folder_paths.get_folder_paths("diffusers"):
-            if os.path.exists(search_path):
-                for root, subdir, files in os.walk(search_path, followlinks=True):
-                    if "model_index.json" in files:
-                        paths.append(os.path.relpath(root, start=search_path))
-
-        return {"required": {"model_path": (paths,), }}
-    RETURN_TYPES = ("MODEL", "CLIP", "VAE")
-    FUNCTION = "load_checkpoint"
-
-    CATEGORY = "advanced/loaders/deprecated"
-
-    def load_checkpoint(self, model_path, output_vae=True, output_clip=True):
-        for search_path in folder_paths.get_folder_paths("diffusers"):
-            if os.path.exists(search_path):
-                path = os.path.join(search_path, model_path)
-                if os.path.exists(path):
-                    model_path = path
-                    break
-
-        return comfy.diffusers_load.load_diffusers(model_path, fp16=comfy.model_management.should_use_fp16(), output_vae=output_vae, output_clip=output_clip, embedding_directory=folder_paths.get_folder_paths("embeddings"))
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#unclip加载
-class unCLIPCheckpointLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
-                             }}
-    RETURN_TYPES = ("MODEL", "CLIP", "VAE", "CLIP_VISION")
-    FUNCTION = "load_checkpoint"
-
-    CATEGORY = "loaders"
-
-    def load_checkpoint(self, ckpt_name, output_vae=True, output_clip=True):
-        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
-        out = comfy.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, output_clipvision=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
-        return out
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#clip跳过层
-class CLIPSetLastLayer:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "clip": ("CLIP", ),
-                              "stop_at_clip_layer": ("INT", {"default": -1, "min": -24, "max": -1, "step": 1}),
-                              }}
-    RETURN_TYPES = ("CLIP",)
-    FUNCTION = "set_last_layer"
-
-    CATEGORY = "conditioning"
-
-    def set_last_layer(self, clip, stop_at_clip_layer):
-        clip = clip.clone()
-        clip.clip_layer(stop_at_clip_layer)
-        return (clip,)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#lora加载
-class LoraLoader:
-    def __init__(self):
-        self.loaded_lora = None
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "model": ("MODEL",),
-                              "clip": ("CLIP", ),
-                              "lora_name": (folder_paths.get_filename_list("loras"), ),
-                              "strength_model": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
-                              "strength_clip": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
-                              }}
-    RETURN_TYPES = ("MODEL", "CLIP")
-    FUNCTION = "load_lora"
-
-    CATEGORY = "loaders"
-
-    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
-        if strength_model == 0 and strength_clip == 0:
-            return (model, clip)
-
-        lora_path = folder_paths.get_full_path("loras", lora_name)
-        lora = None
-        if self.loaded_lora is not None:
-            if self.loaded_lora[0] == lora_path:
-                lora = self.loaded_lora[1]
-            else:
-                temp = self.loaded_lora
-                self.loaded_lora = None
-                del temp
-
-        if lora is None:
-            lora = comfy.utils.load_torch_file(lora_path, safe_load=True)
-            self.loaded_lora = (lora_path, lora)
-
-        model_lora, clip_lora = comfy.sd.load_lora_for_models(model, clip, lora, strength_model, strength_clip)
-        return (model_lora, clip_lora)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#VAE加载
-class VAELoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "vae_name": (folder_paths.get_filename_list("vae"), )}}
-    RETURN_TYPES = ("VAE",)
-    FUNCTION = "load_vae"
-
-    CATEGORY = "loaders"
-
-    #TODO: scale factor?
-    def load_vae(self, vae_name):
-        vae_path = folder_paths.get_full_path("vae", vae_name)
-        vae = comfy.sd.VAE(ckpt_path=vae_path)
-        return (vae,)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#CN加载
-class ControlNetLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "control_net_name": (folder_paths.get_filename_list("controlnet"), )}}
-
-    RETURN_TYPES = ("CONTROL_NET",)
-    FUNCTION = "load_controlnet"
-
-    CATEGORY = "loaders"
-
-    def load_controlnet(self, control_net_name):
-        controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
-        controlnet = comfy.sd.load_controlnet(controlnet_path)
-        return (controlnet,)
-
-#CN-条件加载
-class DiffControlNetLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "model": ("MODEL",),
-                              "control_net_name": (folder_paths.get_filename_list("controlnet"), )}}
-
-    RETURN_TYPES = ("CONTROL_NET",)
-    FUNCTION = "load_controlnet"
-
-    CATEGORY = "loaders"
-
-    def load_controlnet(self, model, control_net_name):
-        controlnet_path = folder_paths.get_full_path("controlnet", control_net_name)
-        controlnet = comfy.sd.load_controlnet(controlnet_path, model)
-        return (controlnet,)
-
-#CN
-class ControlNetApply:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {"conditioning": ("CONDITIONING", ),
-                             "control_net": ("CONTROL_NET", ),
-                             "image": ("IMAGE", ),
-                             "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01})
-                             }}
-    RETURN_TYPES = ("CONDITIONING",)
-    FUNCTION = "apply_controlnet"
-
-    CATEGORY = "conditioning"
-
-    def apply_controlnet(self, conditioning, control_net, image, strength):
-        if strength == 0:
-            return (conditioning, )
-
-        c = []
-        control_hint = image.movedim(-1,1)
-        for t in conditioning:
-            n = [t[0], t[1].copy()]
-            c_net = control_net.copy().set_cond_hint(control_hint, strength)
-            if 'control' in t[1]:
-                c_net.set_previous_controlnet(t[1]['control'])
-            n[1]['control'] = c_net
-            n[1]['control_apply_to_uncond'] = True
-            c.append(n)
-        return (c, )
-
-#CN高级
-class ControlNetApplyAdvanced:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {"positive": ("CONDITIONING", ),
-                             "negative": ("CONDITIONING", ),
-                             "control_net": ("CONTROL_NET", ),
-                             "image": ("IMAGE", ),
-                             "strength": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.01}),
-                             "start_percent": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.001}),
-                             "end_percent": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.001})
-                             }}
-
-    RETURN_TYPES = ("CONDITIONING","CONDITIONING")
-    RETURN_NAMES = ("positive", "negative")
-    FUNCTION = "apply_controlnet"
-
-    CATEGORY = "conditioning"
-
-    def apply_controlnet(self, positive, negative, control_net, image, strength, start_percent, end_percent):
-        if strength == 0:
-            return (positive, negative)
-
-        control_hint = image.movedim(-1,1)
-        cnets = {}
-
-        out = []
-        for conditioning in [positive, negative]:
-            c = []
-            for t in conditioning:
-                d = t[1].copy()
-
-                prev_cnet = d.get('control', None)
-                if prev_cnet in cnets:
-                    c_net = cnets[prev_cnet]
-                else:
-                    c_net = control_net.copy().set_cond_hint(control_hint, strength, (1.0 - start_percent, 1.0 - end_percent))
-                    c_net.set_previous_controlnet(prev_cnet)
-                    cnets[prev_cnet] = c_net
-
-                d['control'] = c_net
-                d['control_apply_to_uncond'] = False
-                n = [t[0], d]
-                c.append(n)
-            out.append(c)
-        return (out[0], out[1])
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#UNET加载
-class UNETLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "unet_name": (folder_paths.get_filename_list("unet"), ),
-                             }}
-    RETURN_TYPES = ("MODEL",)
-    FUNCTION = "load_unet"
-
-    CATEGORY = "advanced/loaders"
-
-    def load_unet(self, unet_name):
-        unet_path = folder_paths.get_full_path("unet", unet_name)
-        model = comfy.sd.load_unet(unet_path)
-        return (model,)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#CLIP加载
-class CLIPLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "clip_name": (folder_paths.get_filename_list("clip"), ),
-                             }}
-    RETURN_TYPES = ("CLIP",)
-    FUNCTION = "load_clip"
-
-    CATEGORY = "advanced/loaders"
-
-    def load_clip(self, clip_name):
-        clip_path = folder_paths.get_full_path("clip", clip_name)
-        clip = comfy.sd.load_clip(ckpt_paths=[clip_path], embedding_directory=folder_paths.get_folder_paths("embeddings"))
-        return (clip,)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#dualclip加载
-class DualCLIPLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "clip_name1": (folder_paths.get_filename_list("clip"), ), "clip_name2": (folder_paths.get_filename_list("clip"), ),
-                             }}
-    RETURN_TYPES = ("CLIP",)
-    FUNCTION = "load_clip"
-
-    CATEGORY = "advanced/loaders"
-
-    def load_clip(self, clip_name1, clip_name2):
-        clip_path1 = folder_paths.get_full_path("clip", clip_name1)
-        clip_path2 = folder_paths.get_full_path("clip", clip_name2)
-        clip = comfy.sd.load_clip(ckpt_paths=[clip_path1, clip_path2], embedding_directory=folder_paths.get_folder_paths("embeddings"))
-        return (clip,)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#clipversion加载
-class CLIPVisionLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "clip_name": (folder_paths.get_filename_list("clip_vision"), ),
-                             }}
-    RETURN_TYPES = ("CLIP_VISION",)
-    FUNCTION = "load_clip"
-
-    CATEGORY = "loaders"
-
-    def load_clip(self, clip_name):
-        clip_path = folder_paths.get_full_path("clip_vision", clip_name)
-        clip_vision = comfy.clip_vision.load(clip_path)
-        return (clip_vision,)
-
-#clipversion编码
-class CLIPVisionEncode:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "clip_vision": ("CLIP_VISION",),
-                              "image": ("IMAGE",)
-                             }}
-    RETURN_TYPES = ("CLIP_VISION_OUTPUT",)
-    FUNCTION = "encode"
-
-    CATEGORY = "conditioning"
-
-    def encode(self, clip_vision, image):
-        output = clip_vision.encode_image(image)
-        return (output,)
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#style模型加载
-class StyleModelLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "style_model_name": (folder_paths.get_filename_list("style_models"), )}}
-
-    RETURN_TYPES = ("STYLE_MODEL",)
-    FUNCTION = "load_style_model"
-
-    CATEGORY = "loaders"
-
-    def load_style_model(self, style_model_name):
-        style_model_path = folder_paths.get_full_path("style_models", style_model_name)
-        style_model = comfy.sd.load_style_model(style_model_path)
-        return (style_model,)
-
-#style模型
-class StyleModelApply:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {"conditioning": ("CONDITIONING", ),
-                             "style_model": ("STYLE_MODEL", ),
-                             "clip_vision_output": ("CLIP_VISION_OUTPUT", ),
-                             }}
-    RETURN_TYPES = ("CONDITIONING",)
-    FUNCTION = "apply_stylemodel"
-
-    CATEGORY = "conditioning/style_model"
-
-    def apply_stylemodel(self, clip_vision_output, style_model, conditioning):
-        cond = style_model.get_cond(clip_vision_output)
-        c = []
-        for t in conditioning:
-            n = [torch.cat((t[0], cond), dim=1), t[1].copy()]
-            c.append(n)
-        return (c, )
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#unclip条件
-class unCLIPConditioning:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {"conditioning": ("CONDITIONING", ),
-                             "clip_vision_output": ("CLIP_VISION_OUTPUT", ),
-                             "strength": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
-                             "noise_augmentation": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
-                             }}
-    RETURN_TYPES = ("CONDITIONING",)
-    FUNCTION = "apply_adm"
-
-    CATEGORY = "conditioning"
-
-    def apply_adm(self, conditioning, clip_vision_output, strength, noise_augmentation):
-        if strength == 0:
-            return (conditioning, )
-
-        c = []
-        for t in conditioning:
-            o = t[1].copy()
-            x = {"clip_vision_output": clip_vision_output, "strength": strength, "noise_augmentation": noise_augmentation}
-            if "unclip_conditioning" in o:
-                o["unclip_conditioning"] = o["unclip_conditioning"][:] + [x]
-            else:
-                o["unclip_conditioning"] = [x]
-            n = [t[0], o]
-            c.append(n)
-        return (c, )
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#GLIGEN加载
-class GLIGENLoader:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "gligen_name": (folder_paths.get_filename_list("gligen"), )}}
-
-    RETURN_TYPES = ("GLIGEN",)
-    FUNCTION = "load_gligen"
-
-    CATEGORY = "loaders"
-
-    def load_gligen(self, gligen_name):
-        gligen_path = folder_paths.get_full_path("gligen", gligen_name)
-        gligen = comfy.sd.load_gligen(gligen_path)
-        return (gligen,)
-
-#GLIGEN
-class GLIGENTextBoxApply:
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": {"conditioning_to": ("CONDITIONING", ),
-                              "clip": ("CLIP", ),
-                              "gligen_textbox_model": ("GLIGEN", ),
-                              "text": ("STRING", {"multiline": True}),
-                              "width": ("INT", {"default": 64, "min": 8, "max": MAX_RESOLUTION, "step": 8}),
-                              "height": ("INT", {"default": 64, "min": 8, "max": MAX_RESOLUTION, "step": 8}),
-                              "x": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
-                              "y": ("INT", {"default": 0, "min": 0, "max": MAX_RESOLUTION, "step": 8}),
-                             }}
-    RETURN_TYPES = ("CONDITIONING",)
-    FUNCTION = "append"
-
-    CATEGORY = "conditioning/gligen"
-
-    def append(self, conditioning_to, clip, gligen_textbox_model, text, width, height, x, y):
-        c = []
-        cond, cond_pooled = clip.encode_from_tokens(clip.tokenize(text), return_pooled=True)
-        for t in conditioning_to:
-            n = [t[0], t[1].copy()]
-            position_params = [(cond_pooled, height // 8, width // 8, y // 8, x // 8)]
-            prev = []
-            if "gligen" in n[1]:
-                prev = n[1]['gligen'][2]
-
-            n[1]['gligen'] = ("position", gligen_textbox_model, prev + position_params)
-            c.append(n)
-        return (c, )
-
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
-#空白
-class EmptyLatentImage:
-    def __init__(self, device="cpu"):
-        self.device = device
-
-    @classmethod
-    def INPUT_TYPES(s):
-        return {"required": { "width": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
-                              "height": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
-                              "batch_size": ("INT", {"default": 1, "min": 1, "max": 64})}}
-    RETURN_TYPES = ("LATENT",)
-    FUNCTION = "generate"
-
-    CATEGORY = "latent"
-
-    def generate(self, width, height, batch_size=1):
-        latent = torch.zeros([batch_size, 4, height // 8, width // 8])
-        return ({"samples":latent}, )
 
 #latent批选择
 class LatentFromBatch:
@@ -1263,7 +950,9 @@ class SetLatentNoiseMask:
         s = samples.copy()
         s["noise_mask"] = mask.reshape((-1, 1, mask.shape[-2], mask.shape[-1]))
         return (s,)
-#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+#---------------------------------
+#图像
 #保存图像
 class SaveImage:
     def __init__(self):
@@ -1542,6 +1231,314 @@ class ImagePadForOutpaint:
         mask[top:top + d2, left:left + d3] = t
 
         return (new_image, mask)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#其他
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#保存latent
+class SaveLatent:
+    def __init__(self):
+        self.output_dir = folder_paths.get_output_directory()
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "samples": ("LATENT", ),
+                              "filename_prefix": ("STRING", {"default": "latents/ComfyUI"})},
+                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
+                }
+    RETURN_TYPES = ()
+    FUNCTION = "save"
+
+    OUTPUT_NODE = True
+
+    CATEGORY = "_for_testing"
+
+    def save(self, samples, filename_prefix="ComfyUI", prompt=None, extra_pnginfo=None):
+        full_output_folder, filename, counter, subfolder, filename_prefix = folder_paths.get_save_image_path(filename_prefix, self.output_dir)
+
+        # support save metadata for latent sharing
+        prompt_info = ""
+        if prompt is not None:
+            prompt_info = json.dumps(prompt)
+
+        metadata = None
+        if not args.disable_metadata:
+            metadata = {"prompt": prompt_info}
+            if extra_pnginfo is not None:
+                for x in extra_pnginfo:
+                    metadata[x] = json.dumps(extra_pnginfo[x])
+
+        file = f"{filename}_{counter:05}_.latent"
+
+        results = list()
+        results.append({
+            "filename": file,
+            "subfolder": subfolder,
+            "type": "output"
+        })
+
+        file = os.path.join(full_output_folder, file)
+
+        output = {}
+        output["latent_tensor"] = samples["samples"]
+        output["latent_format_version_0"] = torch.tensor([])
+
+        comfy.utils.save_torch_file(output, file, metadata=metadata)
+        return { "ui": { "latents": results } }
+
+
+#加载latent
+class LoadLatent:
+    @classmethod
+    def INPUT_TYPES(s):
+        input_dir = folder_paths.get_input_directory()
+        files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f)) and f.endswith(".latent")]
+        return {"required": {"latent": [sorted(files), ]}, }
+
+    CATEGORY = "_for_testing"
+
+    RETURN_TYPES = ("LATENT", )
+    FUNCTION = "load"
+
+    def load(self, latent):
+        latent_path = folder_paths.get_annotated_filepath(latent)
+        latent = safetensors.torch.load_file(latent_path, device="cpu")
+        multiplier = 1.0
+        if "latent_format_version_0" not in latent:
+            multiplier = 1.0 / 0.18215
+        samples = {"samples": latent["latent_tensor"].float() * multiplier}
+        return (samples, )
+
+    @classmethod
+    def IS_CHANGED(s, latent):
+        image_path = folder_paths.get_annotated_filepath(latent)
+        m = hashlib.sha256()
+        with open(image_path, 'rb') as f:
+            m.update(f.read())
+        return m.digest().hex()
+
+    @classmethod
+    def VALIDATE_INPUTS(s, latent):
+        if not folder_paths.exists_annotated_filepath(latent):
+            return "Invalid latent file: {}".format(latent)
+        return True
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#主模型-条件加载
+class CheckpointLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "config_name": (folder_paths.get_filename_list("configs"), ),
+                              "ckpt_name": (folder_paths.get_filename_list("checkpoints"), )}}
+    RETURN_TYPES = ("MODEL", "CLIP", "VAE")
+    FUNCTION = "load_checkpoint"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_checkpoint(self, config_name, ckpt_name, output_vae=True, output_clip=True):
+        config_path = folder_paths.get_full_path("configs", config_name)
+        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+        return comfy.sd.load_checkpoint(config_path, ckpt_path, output_vae=True, output_clip=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#DF加载
+class DiffusersLoader:
+    @classmethod
+    def INPUT_TYPES(cls):
+        paths = []
+        for search_path in folder_paths.get_folder_paths("diffusers"):
+            if os.path.exists(search_path):
+                for root, subdir, files in os.walk(search_path, followlinks=True):
+                    if "model_index.json" in files:
+                        paths.append(os.path.relpath(root, start=search_path))
+
+        return {"required": {"model_path": (paths,), }}
+    RETURN_TYPES = ("MODEL", "CLIP", "VAE")
+    FUNCTION = "load_checkpoint"
+
+    CATEGORY = "advanced/loaders/deprecated"
+
+    def load_checkpoint(self, model_path, output_vae=True, output_clip=True):
+        for search_path in folder_paths.get_folder_paths("diffusers"):
+            if os.path.exists(search_path):
+                path = os.path.join(search_path, model_path)
+                if os.path.exists(path):
+                    model_path = path
+                    break
+
+        return comfy.diffusers_load.load_diffusers(model_path, fp16=comfy.model_management.should_use_fp16(), output_vae=output_vae, output_clip=output_clip, embedding_directory=folder_paths.get_folder_paths("embeddings"))
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#unclip加载
+class unCLIPCheckpointLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "ckpt_name": (folder_paths.get_filename_list("checkpoints"), ),
+                             }}
+    RETURN_TYPES = ("MODEL", "CLIP", "VAE", "CLIP_VISION")
+    FUNCTION = "load_checkpoint"
+
+    CATEGORY = "loaders"
+
+    def load_checkpoint(self, ckpt_name, output_vae=True, output_clip=True):
+        ckpt_path = folder_paths.get_full_path("checkpoints", ckpt_name)
+        out = comfy.sd.load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, output_clipvision=True, embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        return out
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#UNET加载
+class UNETLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "unet_name": (folder_paths.get_filename_list("unet"), ),
+                             }}
+    RETURN_TYPES = ("MODEL",)
+    FUNCTION = "load_unet"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_unet(self, unet_name):
+        unet_path = folder_paths.get_full_path("unet", unet_name)
+        model = comfy.sd.load_unet(unet_path)
+        return (model,)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#CLIP加载
+class CLIPLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip_name": (folder_paths.get_filename_list("clip"), ),
+                             }}
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_clip(self, clip_name):
+        clip_path = folder_paths.get_full_path("clip", clip_name)
+        clip = comfy.sd.load_clip(ckpt_paths=[clip_path], embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        return (clip,)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#dualclip加载
+class DualCLIPLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip_name1": (folder_paths.get_filename_list("clip"), ), "clip_name2": (folder_paths.get_filename_list("clip"), ),
+                             }}
+    RETURN_TYPES = ("CLIP",)
+    FUNCTION = "load_clip"
+
+    CATEGORY = "advanced/loaders"
+
+    def load_clip(self, clip_name1, clip_name2):
+        clip_path1 = folder_paths.get_full_path("clip", clip_name1)
+        clip_path2 = folder_paths.get_full_path("clip", clip_name2)
+        clip = comfy.sd.load_clip(ckpt_paths=[clip_path1, clip_path2], embedding_directory=folder_paths.get_folder_paths("embeddings"))
+        return (clip,)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#clipversion加载
+class CLIPVisionLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip_name": (folder_paths.get_filename_list("clip_vision"), ),
+                             }}
+    RETURN_TYPES = ("CLIP_VISION",)
+    FUNCTION = "load_clip"
+
+    CATEGORY = "loaders"
+
+    def load_clip(self, clip_name):
+        clip_path = folder_paths.get_full_path("clip_vision", clip_name)
+        clip_vision = comfy.clip_vision.load(clip_path)
+        return (clip_vision,)
+
+#clipversion编码
+class CLIPVisionEncode:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "clip_vision": ("CLIP_VISION",),
+                              "image": ("IMAGE",)
+                             }}
+    RETURN_TYPES = ("CLIP_VISION_OUTPUT",)
+    FUNCTION = "encode"
+
+    CATEGORY = "conditioning"
+
+    def encode(self, clip_vision, image):
+        output = clip_vision.encode_image(image)
+        return (output,)
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#style模型加载
+class StyleModelLoader:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": { "style_model_name": (folder_paths.get_filename_list("style_models"), )}}
+
+    RETURN_TYPES = ("STYLE_MODEL",)
+    FUNCTION = "load_style_model"
+
+    CATEGORY = "loaders"
+
+    def load_style_model(self, style_model_name):
+        style_model_path = folder_paths.get_full_path("style_models", style_model_name)
+        style_model = comfy.sd.load_style_model(style_model_path)
+        return (style_model,)
+
+#style模型
+class StyleModelApply:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"conditioning": ("CONDITIONING", ),
+                             "style_model": ("STYLE_MODEL", ),
+                             "clip_vision_output": ("CLIP_VISION_OUTPUT", ),
+                             }}
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "apply_stylemodel"
+
+    CATEGORY = "conditioning/style_model"
+
+    def apply_stylemodel(self, clip_vision_output, style_model, conditioning):
+        cond = style_model.get_cond(clip_vision_output)
+        c = []
+        for t in conditioning:
+            n = [torch.cat((t[0], cond), dim=1), t[1].copy()]
+            c.append(n)
+        return (c, )
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+#unclip条件
+class unCLIPConditioning:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required": {"conditioning": ("CONDITIONING", ),
+                             "clip_vision_output": ("CLIP_VISION_OUTPUT", ),
+                             "strength": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
+                             "noise_augmentation": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                             }}
+    RETURN_TYPES = ("CONDITIONING",)
+    FUNCTION = "apply_adm"
+
+    CATEGORY = "conditioning"
+
+    def apply_adm(self, conditioning, clip_vision_output, strength, noise_augmentation):
+        if strength == 0:
+            return (conditioning, )
+
+        c = []
+        for t in conditioning:
+            o = t[1].copy()
+            x = {"clip_vision_output": clip_vision_output, "strength": strength, "noise_augmentation": noise_augmentation}
+            if "unclip_conditioning" in o:
+                o["unclip_conditioning"] = o["unclip_conditioning"][:] + [x]
+            else:
+                o["unclip_conditioning"] = [x]
+            n = [t[0], o]
+            c.append(n)
+        return (c, )
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #分类
