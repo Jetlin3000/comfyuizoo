@@ -42,6 +42,79 @@ def interrupt_processing(value=True):
 MAX_RESOLUTION=8192
 
 #————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+def replace_english_with_chinese(text):
+    # 创建英文字符到中文字符的映射字典
+    conversion_dict = {
+        "hello": "你好",
+        "model": "模型",
+        "seed": "种子",
+        "steps": "步数",
+        "cfg": "CFG值",
+        "sampler_name": "采样器",
+        "scheduler": "调度器",
+        "positive": "正向提示词",
+        "negative": "负向提示词",
+        "latent_image": "潜空间图像",
+        "denoise": "降噪值",
+        "add_noise": "增加噪点",
+        "noise_seed": "噪点种子",
+        "start_at_step": "起始步数",
+        "end_at_step": "结束步数",
+        "return_with_leftover_noise": "返回剩余噪点",
+        "ckpt_name": "主模型名称",
+        "vae_name": "VAE模型名称",
+        "clip": "CLIP模型",
+        "lora_name": "LORA模型",
+        "strength_model": "模型强度",
+        "strength_clip": "CLIP强度",
+        "control_net_name": "CtrlNet模型",
+        "gligen_name": "GLIGEN模型",
+        "stop_at_clip_layer": "CLIP跳过层",
+        "conditioning_1": "条件1",
+        "conditioning_2": "条件2",
+        "conditioning_to": "条件去往",
+        "conditioning_from": "条件来自",
+        "conditioning_to_strength": "条件去往强度",
+        "conditioning": "条件",
+        "width": "宽度",
+        "height": "高度",
+        "strength": "强度",
+        "mask": "蒙版",
+        "set_cond_area": "设置条件区域",
+        "start": "开始",
+        "end": "结束",
+        "gligen_textbox_model": "GLIGEN文字区域设定",
+        "control_net": "CtrlNet",
+        "image": "图像",
+        "start_percent": "开始比例",
+        "end_percent": "结束比例",
+        "batch_size": "批次数",
+        "samples": "采样结果",
+        "vae": "VAE模型",
+        "pixels": "像素",
+        "grow_mask_by": "你好",
+        "batch_index": "批次编号",
+        "length": "长度",
+        "amount": "数量",
+        "crop": "剪裁",
+        "scale_by": "放大方法",
+        "rotation": "旋转",
+        "degrees": "度",
+        "flip_method": "翻转方式",
+        "feather": "羽化值",
+        "filename_prefix": "文件名",
+        "images": "预览图像",
+        "bottom": "底部",
+        # 添加其他需要转换的字符
+    }
+
+    # 根据字典中的转换规则进行替换
+    for key, value in conversion_dict.items():
+        text = text.replace(key, value)
+
+    return text
+
+#————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 #精选常用模块
 #---------------------------------
 #采样器
