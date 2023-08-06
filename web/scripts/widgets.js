@@ -426,7 +426,7 @@ export const ComfyWidgets = {
 		document.body.append(fileInput);
 
 		// Create the button widget for selecting the files
-		uploadWidget = node.addWidget("button", "choose file to upload", "image", () => {
+		uploadWidget = node.addWidget("button", "选择文件上传", "image", () => {
 			fileInput.click();
 		});
 		uploadWidget.serialize = false;
