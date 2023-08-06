@@ -1,8 +1,107 @@
 # ComfyUI 简体中文版 【Zho】
 
-声明：我并不是ComfyUI的作者，我只是对界面做了汉化+新增了一个主题配色，原作者在[ComfyUI](https://github.com/comfyanonymous/ComfyUI)
+## 更新日志：
 
-### 操作面板 + ZHO配色主题
+20230806 
+- 完成ComfyUI 20+常用节点汉化，代码详见：[ComfyUI 常用节点 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/blob/master/custom_nodes/Zho_Main_Nodes_Chinese.py)
+
+   
+  <details>
+    <summary>节点列表</summary>
+
+
+     1.采样器_Zho
+
+     2.高级采样器_Zho
+  
+     3.主模型加载器_Zho
+  
+     4.VAE加载器_Zho
+  
+     5.Lora加载器_Zho
+  
+     6.ControlNet加载器_Zho
+  
+     7.GLIGEN加载器_Zho
+  
+     8.提示词_Zho
+  
+     9.CLIP跳过层_Zho
+  
+     10.GLIGEN区域设定_Zho
+  
+     11.ControlNet_Zho
+  
+     12.初始潜空间_Zho
+  
+     13.VAE解码器_Zho
+  
+     14.VAE编码器_Zho
+  
+     15.VAE编码器_重绘_Zho
+  
+     16.批次选择_Zho
+  
+     17.批次复制_Zho
+  
+     18.潜空间放大_Zho
+  
+     19.潜空间放大_比例_Zho
+  
+     20.图像保存_Zho
+  
+     21.图像预览_Zho
+  
+     22.图像加载_Zho
+  
+     23.图像放大_Zho
+  
+     24.图像放大_比例_Zho
+  
+     25.图像反转_Zho
+
+  </details>
+
+20230804 
+- 完成ComfyUI Styler汉化，代码详见：[ComfyUI Styler 简体中文版](https://github.com/ZHO-ZHO-ZHO/sdxl_prompt_styler-Zh-Chinese)
+
+
+20230803 
+- 完成ComfyUI界面汉化，并新增ZHO主题配色 ，代码详见：[ComfyUI 简体中文版界面](https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git)
+- 完成ComfyUI Manager汉化 ，代码详见：[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
+
+
+--------
+声明：我并不是ComfyUI的作者，我只是对界面做了汉化 + 常用节点汉化 + 新增了一个主题配色，原作者在[ComfyUI](https://github.com/comfyanonymous/ComfyUI)
+
+--------
+## 使用方法：
+本地部署
+
+- 未部署过的小伙伴：
+点击右上角code选择下载zip文件，解压之后运行就可看到中文简体版的界面。
+
+- 已部署的小伙伴：
+只需把web文件夹下载到本地，覆盖掉原来的web文件夹即可。
+
+- 需要中文版Manager的小伙伴，移步[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
+
+- 需要中文版Styler的小伙伴，移步[ComfyUI Styler 简体中文版](https://github.com/ZHO-ZHO-ZHO/sdxl_prompt_styler-Zh-Chinese)
+
+Google Colab 云部署：
+- 我制作的[ComfyUI 云部署1.0](https://colab.research.google.com/drive/1TxdWQyN71v56TyMr6AFUv0PZ_jjMUExb?usp=sharing)：已载入简体中文版界面、简体中文版常用节点、简体中文版Manager、简体中文版Styler，同时也支持最新SDXL1.0模型，并且提供了支持中文输入的[【SDXL系列标准工作流 -Zho-】](https://drive.google.com/drive/folders/1Jxw2IFvb8_pExowWo6DkaYiUgrTpMZvp?usp=sharing)
+
+- 有自己colab云部署的小伙伴，只需git安装此库即可
+
+--------
+## 20+常用节点 简体中文版：
+![image](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/87a1d659-fbce-4918-8578-82a6413dd9ca)
+
+![image](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/aa9a53d3-09c0-4fe1-8d83-d6e4b4a0554f)
+
+
+--------
+## 简体中文操作面板 + ZHO配色主题：
 
 ![Dingtalk_20230803173143](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/8c4b11d4-c698-4da8-93fd-f384e749dadc)![Dingtalk_20230803173317](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/5f1c1026-9039-49b6-bc73-71a7b1e4e3c9)
 
@@ -15,30 +114,6 @@
 ![Dingtalk_20230803173631](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/61e06dc7-515b-4d02-8647-3e6c422f1a6a)
 
 
-### 使用方法
-
-本地部署
-
-- 未部署过的小伙伴：
-点击右上角code选择下载zip文件，解压之后运行就可看到中文简体版的界面。
-
-- 已部署的小伙伴：
-只需把web文件夹下载到本地，覆盖掉原来的web文件夹即可。
-
-- 另外，需要中文版Manager的小伙伴，移步[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
-
-
-Google Colab 云部署：
-- 我制作的[ComfyUI 云部署1.0](https://colab.research.google.com/drive/1TxdWQyN71v56TyMr6AFUv0PZ_jjMUExb?usp=sharing)：已载入简体中文版界面和简体中文版Manager，同时也支持最新SDXL1.0模型，并且提供了支持中文输入的标准工作流
-
-- 有自己colab云部署的小伙伴，只需git安装此库即可
-
-
-### 更新日志
-
-20230803 
-- 完成ComfyUI界面汉化，并新增ZHO主题配色 ，代码详见：[ComfyUI 中文简体版界面](https://github.com/ZHO-ZHO-ZHO/ComfyUI-UI-Zh-Chinese.git)
-- 完成ComfyUI Manager汉化 ，代码详见：[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
 
 
 
