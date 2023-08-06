@@ -91,7 +91,7 @@ class 采样器_Zho:
                     "正向提示词": ("CONDITIONING", ),
                     "负向提示词": ("CONDITIONING", ),
                     "潜空间图像": ("LATENT", ),
-                    "降噪值": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
+                    "denoise": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 1.0, "step": 0.01}),
                      }
                 }
 
@@ -101,8 +101,8 @@ class 采样器_Zho:
 
     CATEGORY = "Zho汉化模块组/采样器"
 
-    def sample(self, 模型, 种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, 降噪值=1.0):
-        return common_ksampler(模型, 种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, 降噪值=denoise)
+    def sample(self, 模型, 种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, denoise=1.0):
+        return common_ksampler(模型, 种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, denoise=denoise)
 
 # KSamplerAdvanced
 class 高级采样器_Zho:
@@ -110,7 +110,7 @@ class 高级采样器_Zho:
     def INPUT_TYPES(s):
         return {"required":
                     {"模型": ("MODEL",),
-                    "增加噪点": (["enable", "disable"], ),
+                    "增加噪点": (["开启", "关闭"], ),
                     "噪点种子": ("INT", {"default": 0, "min": 0, "max": 0xffffffffffffffff}),
                     "步数": ("INT", {"default": 20, "min": 1, "max": 10000}),
                     "CFG值": ("FLOAT", {"default": 8.0, "min": 0.0, "max": 100.0}),
@@ -121,7 +121,7 @@ class 高级采样器_Zho:
                     "潜空间图像": ("LATENT", ),
                     "起始步数": ("INT", {"default": 0, "min": 0, "max": 10000}),
                     "结束步数": ("INT", {"default": 10000, "min": 0, "max": 10000}),
-                    "返回剩余噪点": (["disable", "enable"], ),
+                    "返回剩余噪点": (["关闭", "开启"], ),
                      }
                 }
 
@@ -131,14 +131,14 @@ class 高级采样器_Zho:
 
     CATEGORY = "Zho汉化模块组/采样器"
 
-    def sample(self, 模型, 增加噪点, 噪点种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, 起始步数, 结束步数, 返回剩余噪点, 降噪值=1.0):
+    def sample(self, 模型, 增加噪点, 噪点种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, 起始步数, 结束步数, 返回剩余噪点, denoise=1.0):
         force_full_denoise = True
-        if 返回剩余噪点 == "enable":
+        if 返回剩余噪点 == "开启":
             force_full_denoise = False
         disable_noise = False
-        if 增加噪点 == "disable":
+        if 增加噪点 == "关闭":
             disable_noise = True
-        return common_ksampler(模型, 噪点种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, 降噪值=降噪值, disable_noise=disable_noise, start_step=起始步数, last_step=结束步数, force_full_denoise=force_full_denoise)
+        return common_ksampler(模型, 噪点种子, 步数, CFG值, 采样器, 调度器, 正向提示词, 负向提示词, 潜空间图像, denoise=denoise, disable_noise=disable_noise, start_step=起始步数, last_step=结束步数, force_full_denoise=force_full_denoise)
 
 #---------------------------------
 #加载器
@@ -183,11 +183,11 @@ class Lora加载器_Zho:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "模型": ("MODEL",),
-                              "CLIP模型": ("CLIP", ),
-                              "LORA模型": (folder_paths.get_filename_list("loras"), ),
-                              "模型强度": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
-                              "CLIP强度": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
+        return {"required": { "model": ("MODEL",),
+                              "clip": ("CLIP", ),
+                              "lora_name": (folder_paths.get_filename_list("loras"), ),
+                              "strength_model": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
+                              "strength_clip": ("FLOAT", {"default": 1.0, "min": -10.0, "max": 10.0, "step": 0.01}),
                               }}
     RETURN_TYPES = ("MODEL", "CLIP")
     RETURN_NAMES = ("主模型", "CLIP模型")
@@ -195,11 +195,11 @@ class Lora加载器_Zho:
 
     CATEGORY = "Zho汉化模块组/加载器"
 
-    def load_lora(self, model, clip, LORA模型, 模型强度, CLIP强度):
-        if 模型强度 == 0 and CLIP强度 == 0:
+    def load_lora(self, model, clip, lora_name, strength_model, strength_clip):
+        if strength_model == 0 and strength_clip == 0:
             return (model, clip)
 
-        lora_path = folder_paths.get_full_path("loras", LORA模型)
+        lora_path = folder_paths.get_full_path("loras", lora_name)
         lora = None
         if self.loaded_lora is not None:
             if self.loaded_lora[0] == lora_path:
@@ -213,7 +213,7 @@ class Lora加载器_Zho:
             lora = comfy.utils.load_torch_file(lora_path, safe_load=True)
             self.loaded_lora = (lora_path, lora)
 
-        model_lora, clip_lora = comfy.sd.load_lora_for_models(model, clip, lora, 模型强度, CLIP强度)
+        model_lora, clip_lora = comfy.sd.load_lora_for_models(model, clip, lora, strength_model, strength_clip)
         return (model_lora, clip_lora)
 
 # ControlNetLoader
@@ -334,7 +334,7 @@ class ControlNet_Zho:
 
     CATEGORY = "Zho汉化模块组/条件"
 
-    def apply_controlnet(self, 条件, CONTROL_NET, 图像, 强度):
+    def apply_controlnet(self, 条件, CrtlNet, 图像, 强度):
         if 强度 == 0:
             return (条件, )
 
@@ -342,7 +342,7 @@ class ControlNet_Zho:
         control_hint = 图像.movedim(-1, 1)
         for t in 条件:
             n = [t[0], t[1].copy()]
-            c_net = CONTROL_NET.copy().set_cond_hint(control_hint, 强度)
+            c_net = CrtlNet.copy().set_cond_hint(control_hint, 强度)
             if 'control' in t[1]:
                 c_net.set_previous_controlnet(t[1]['control'])
             n[1]['control'] = c_net
@@ -519,7 +519,7 @@ class 潜空间放大_Zho:
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "潜空间图像": ("LATENT",), "放大方法": (s.upscale_methods,),
+        return {"required": { "samples": ("LATENT",), "放大方法": (s.upscale_methods,),
                               "宽度": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
                               "高度": ("INT", {"default": 512, "min": 64, "max": MAX_RESOLUTION, "step": 8}),
                               "剪裁": (s.crop_methods,)}}
@@ -529,18 +529,18 @@ class 潜空间放大_Zho:
 
     CATEGORY = "Zho汉化模块组/潜空间"
 
-    def upscale(self, 潜空间图像, 放大方法, 宽度, 高度, 剪裁):
-        s = 潜空间图像.copy()
-        s["潜空间图像"] = comfy.utils.common_upscale(潜空间图像["潜空间图像"], 宽度 // 8, 高度 // 8, 放大方法, 剪裁)
+    def upscale(self, samples, 放大方法, 宽度, 高度, 剪裁):
+        s = samples.copy()
+        s["samples"] = comfy.utils.common_upscale(samples["samples"], 宽度 // 8, 高度 // 8, 放大方法, 剪裁)
         return (s,)
 
 #latent放大模型
-class 潜空间放大方式_Zho:
+class 潜空间放大_比例_Zho:
     放大方法 = ["nearest-exact", "bilinear", "area", "bicubic", "bislerp"]
 
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": {"潜空间图像": ("LATENT",),
+        return {"required": {"samples": ("LATENT",),
                              "放大方法": (s.放大方法,),
                              "比例": ("FLOAT", {"default": 1.5, "min": 0.01, "max": 8.0, "step": 0.01}),}}
     RETURN_TYPES = ("LATENT",)
@@ -549,11 +549,11 @@ class 潜空间放大方式_Zho:
 
     CATEGORY = "Zho汉化模块组/潜空间"
 
-    def upscale(self, 潜空间图像, 放大方法, 比例):
-        s = 潜空间图像.copy()
-        宽度 = round(潜空间图像["潜空间图像"].shape[3] * 比例)
-        高度 = round(潜空间图像["潜空间图像"].shape[2] * 比例)
-        s["潜空间图像"] = comfy.utils.common_upscale(潜空间图像["潜空间图像"], 宽度, 高度, 放大方法, "disabled")
+    def upscale(self, samples, 放大方法, 比例):
+        s = samples.copy()
+        宽度 = round(samples["samples"].shape[3] * 比例)
+        高度 = round(samples["samples"].shape[2] * 比例)
+        s["samples"] = comfy.utils.common_upscale(samples["samples"], 宽度, 高度, 放大方法, "disabled")
         return (s,)
 
 #---------------------------------
@@ -563,6 +563,7 @@ class 图像保存_Zho:
         self.output_dir = folder_paths.get_output_directory()
         self.type = "output"
         self.prefix_append = ""
+        self.disable_metadata = False  # 添加一个属性来控制是否禁用元数据
 
     @classmethod
     def INPUT_TYPES(s):
@@ -587,7 +588,7 @@ class 图像保存_Zho:
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             metadata = None
-            if not args.disable_metadata:
+            if not self.disable_metadata:  # 使用 self.disable_metadata 判断是否禁用元数据
                 metadata = PngInfo()
                 if prompt is not None:
                     metadata.add_text("prompt", json.dumps(prompt))
@@ -604,7 +605,22 @@ class 图像保存_Zho:
             })
             counter += 1
 
-        return {"ui": {"图像": results}}
+        return {"ui": {"images": results}}
+
+class 图像预览_Zho(图像保存_Zho):
+    def __init__(self):
+        self.output_dir = folder_paths.get_temp_directory()
+        self.type = "temp"
+        self.prefix_append = "_temp_" + ''.join(random.choice("abcdefghijklmnopqrstupvxyz") for x in range(5))
+        self.disable_metadata = False  # 添加一个属性来控制是否禁用元数据
+
+    @classmethod
+    def INPUT_TYPES(s):
+        return {"required":
+                    {"图像": ("IMAGE", ), },
+                "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
+                }
+
 
 #加载图像
 class 图像加载_Zho:
@@ -650,6 +666,7 @@ class 图像加载_Zho:
 
         return True
 
+
 #放大图像
 class 图像放大_Zho:
     upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic"]
@@ -667,14 +684,14 @@ class 图像放大_Zho:
 
     CATEGORY = "Zho汉化模块组/图像"
 
-    def 放大(self, 图像, 放大方法, 宽度, 高度, 剪裁):
+    def upscale(self, 图像, 放大方法, 宽度, 高度, 剪裁):
         samples = 图像.movedim(-1,1)
         s = comfy.utils.common_upscale(samples, 宽度, 高度, 放大方法, 剪裁)
         s = s.movedim(1,-1)
         return (s,)
 
 #放大图像-模型
-class 图像放大方式_Zho:
+class 图像放大_比例_Zho:
     upscale_methods = ["nearest-exact", "bilinear", "area", "bicubic"]
 
     @classmethod
@@ -732,10 +749,11 @@ NODE_CLASS_MAPPINGS = {
     "批次选择_Zho": 批次选择_Zho,
     "批次复制_Zho": 批次复制_Zho,
     "潜空间放大_Zho": 潜空间放大_Zho,
-    "潜空间放大方式_Zho": 潜空间放大方式_Zho,
+    "潜空间放大_比例_Zho": 潜空间放大_比例_Zho,
     "图像保存_Zho": 图像保存_Zho,
+    "图像预览_Zho": 图像预览_Zho,
     "图像加载_Zho": 图像加载_Zho,
     "图像放大_Zho": 图像放大_Zho,
-    "图像放大方式_Zho": 图像放大方式_Zho,
+    "图像放大_比例_Zho": 图像放大_比例_Zho,
     "图像反转_Zho": 图像反转_Zho,
 }
