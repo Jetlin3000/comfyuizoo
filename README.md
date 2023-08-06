@@ -97,7 +97,7 @@ Google Colab 云部署：
 ## 20+常用节点 简体中文版：
 ![image](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/87a1d659-fbce-4918-8578-82a6413dd9ca)
 
-![image](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/aa9a53d3-09c0-4fe1-8d83-d6e4b4a0554f)
+![image](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/f3b3357d-4f88-4646-a733-a6617a39bad0)
 
 
 --------
