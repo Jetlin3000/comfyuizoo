@@ -82,7 +82,9 @@
 本地部署
 
 - 未部署过的小伙伴：
-点击右上角code选择下载zip文件，解压之后运行就可看到中文简体版的界面。
+先下载ComfyUI作者的[整合包](https://github.com/comfyanonymous/ComfyUI/releases/download/latest/ComfyUI_windows_portable_nvidia_cu118_or_cpu.7z)，然后再把web和custom nodes文件夹下载到本地，覆盖掉原来的web和custom nodes文件夹即可（自己安装的其他模块也放到新的custom nodes文件夹里），运行之后就可看到中文简体版的界面。
+
+   （完全的中文版整合包还在制作中，请稍等）
 
 - 已部署的小伙伴：
 只需把web和custom nodes文件夹下载到本地，覆盖掉原来的web和custom nodes文件夹即可（自己安装的其他模块也放到新的custom nodes文件夹里）。
@@ -95,6 +97,19 @@ Google Colab 云部署：
 - 我制作的[ComfyUI 云部署1.0](https://colab.research.google.com/drive/1TxdWQyN71v56TyMr6AFUv0PZ_jjMUExb?usp=sharing)：已载入简体中文版界面、简体中文版常用节点、简体中文版Manager、简体中文版Styler，同时也支持最新SDXL1.0模型，并且提供了支持中文输入的[【SDXL系列标准工作流 -Zho-】](https://drive.google.com/drive/folders/1Jxw2IFvb8_pExowWo6DkaYiUgrTpMZvp?usp=sharing)
 
 - 有自己colab云部署的小伙伴，只需git安装此库即可
+
+--------
+## 下载：
+
+[web.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288326/web.zip)
+
+[custom_nodes.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288332/custom_nodes.zip)
+
+[ComfyUI-Manager-Zh-Chinese-main.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288331/ComfyUI-Manager-Zh-Chinese-main.zip)
+
+[sdxl_prompt_styler-Zh-Chinese-main.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288329/sdxl_prompt_styler-Zh-Chinese-main.zip)
+
+
 
 --------
 ## 20+常用节点 简体中文版：
