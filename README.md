@@ -101,6 +101,13 @@ Google Colab 云部署：
 --------
 ## 下载：
 
+百度网盘下载：
+
+链接：https://pan.baidu.com/s/1wck3rvUkzO5GS8mduR6wfQ?pwd=pc1o 
+提取码：pc1o
+
+直接下载：
+
 [web.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288326/web.zip)
 
 [custom_nodes.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288332/custom_nodes.zip)
