@@ -85,7 +85,7 @@
 点击右上角code选择下载zip文件，解压之后运行就可看到中文简体版的界面。
 
 - 已部署的小伙伴：
-只需把web文件夹下载到本地，覆盖掉原来的web文件夹即可。
+只需把web和custom nodes文件夹下载到本地，覆盖掉原来的web和custom nodes文件夹即可（自己安装的其他模块也放到新的custom nodes文件夹里）。
 
 - 需要中文版Manager的小伙伴，移步[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
 
