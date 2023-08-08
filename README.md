@@ -99,6 +99,12 @@ Google Colab 云部署：
 - 有自己colab云部署的小伙伴，只需git安装此库即可
 
 --------
+## 中文版工作流：
+基础文生图工作流：[Zho_文生图](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/blob/master/Zho%E6%B1%89%E5%8C%96_%E9%BB%98%E8%AE%A4%E5%B7%A5%E4%BD%9C%E6%B5%81.json)
+
+
+
+--------
 ## 下载：
 
 百度网盘下载：
