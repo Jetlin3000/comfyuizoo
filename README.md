@@ -114,7 +114,9 @@ Google Colab 云部署：
 
 直接下载：
 
-[web.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288326/web.zip)
+web已修复与原始图片加载冲突的问题
+
+[web.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12309252/web.zip)
 
 [custom_nodes.zip](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/files/12288332/custom_nodes.zip)
 
