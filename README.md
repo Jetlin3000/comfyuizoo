@@ -5,6 +5,10 @@
 
 ## 更新日志：
 
+20230814
+- 完成ComfyUI Overlay（Layout）节点汉化，代码详见：[ComfyUI 排版模块 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Layout-Zh-Chinese/tree/main)
+
+
 20230806 
 - 完成ComfyUI 20+常用节点汉化，代码详见：[ComfyUI 常用节点 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/blob/master/custom_nodes/Zho_Main_Nodes_Chinese.py)
 
