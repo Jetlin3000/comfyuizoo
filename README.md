@@ -5,6 +5,9 @@
 
 ## 更新日志：
 
+20230815
+- 编写了一个常用参考网站的主菜单按钮，代码详见：[常用艺术库 按钮 双语版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-SDXL_Art_Library-Button)
+
 20230814
 - 完成ComfyUI Overlay（Layout）节点汉化，代码详见：[ComfyUI 排版模块 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Layout-Zh-Chinese/tree/main)
 
