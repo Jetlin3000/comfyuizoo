@@ -5,6 +5,11 @@
 
 ## 更新日志：
 
+20230816
+- 简体中文版整合包正式上线，预装超多模块组（简版5个，标准版25个），下载地址：https://pan.baidu.com/s/11znfR-gm0ieHHEVpOzVhCQ?pwd=e5cu 
+提取码：e5cu
+- 中文云部署全新升级，新增模组下载器，详见：[ComfyUI 云部署1.0](https://colab.research.google.com/drive/1TxdWQyN71v56TyMr6AFUv0PZ_jjMUExb?usp=sharing)
+
 20230815
 - 编写了一个常用参考网站的主菜单按钮，代码详见：[常用艺术库 按钮 双语版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-SDXL_Art_Library-Button)
 
@@ -88,10 +93,11 @@
 ## 使用方法：
 本地部署
 
+- 简体中文版整合包正式上线，预装超多模块组（简版5个，标准版25个），下载地址：https://pan.baidu.com/s/11znfR-gm0ieHHEVpOzVhCQ?pwd=e5cu 
+提取码：e5cu
+
 - 未部署过的小伙伴：
 先下载ComfyUI作者的[整合包](https://github.com/comfyanonymous/ComfyUI/releases/download/latest/ComfyUI_windows_portable_nvidia_cu118_or_cpu.7z)，然后再把web和custom nodes文件夹下载到本地，覆盖掉原来的web和custom nodes文件夹即可（自己安装的其他模块也放到新的custom nodes文件夹里），运行之后就可看到中文简体版的界面。
-
-   （完全的中文版整合包还在制作中，请稍等）
 
 - 已部署的小伙伴：
 只需把web和custom nodes文件夹下载到本地，覆盖掉原来的web和custom nodes文件夹即可（自己安装的其他模块也放到新的custom nodes文件夹里）。
@@ -114,7 +120,13 @@ Google Colab 云部署：
 --------
 ## 下载：
 
-百度网盘下载：
+整合包百度网盘下载：
+
+链接：https://pan.baidu.com/s/11znfR-gm0ieHHEVpOzVhCQ?pwd=e5cu 
+提取码：e5cu
+
+
+汉化包百度网盘下载：
 
 链接：https://pan.baidu.com/s/1wck3rvUkzO5GS8mduR6wfQ?pwd=pc1o 
 提取码：pc1o
