@@ -167,7 +167,13 @@ web已修复与原始图片加载冲突的问题、汉化默认工作流
 
 
 
+------------------------------------------------------------
 
+
+
+https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/assets/140084057/e52d3032-ff69-4f27-b1dd-e253824b1aae
+
+edit from：https://www.youtube.com/watch?v=L3677Z6S4KY
 
 ------------------------------------------------------------
 
