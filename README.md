@@ -1,7 +1,10 @@
 # ComfyUI 简体中文版 【Zho】
 
 
-使用教程/详解视频：[【简体中文版ComfyUI来啦！我把界面&常用模块&管理器&风格插件都汉化了！Stable Diffusion  | Ai+建筑】](https://www.bilibili.com/video/BV1ym4y1W71m/?share_source=copy_web&vd_source=aa2245cc0c4c36a0387a65937847fd3c)
+使用教程/详解视频：
+- [【ComfyUI系统性教程来啦！简体中文版整合包+全新升级云部署！预装超多模块组一键启动！内置超全标准工作流！Stable Diffusion | Ai+建筑】](https://www.bilibili.com/video/BV14r4y1d7r8/?share_source=copy_web&vd_source=aa2245cc0c4c36a0387a65937847fd3c)
+
+- [【简体中文版ComfyUI来啦！我把界面&常用模块&管理器&风格插件都汉化了！Stable Diffusion  | Ai+建筑】](https://www.bilibili.com/video/BV1ym4y1W71m/?share_source=copy_web&vd_source=aa2245cc0c4c36a0387a65937847fd3c)
 
 ## 更新日志：
 
