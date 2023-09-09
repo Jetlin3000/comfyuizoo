@@ -8,6 +8,9 @@
 
 ## 更新日志：
 
+20230909
+- 编写了ComfyUI选择器Selector + 综合输入CoInput模块组（双语版），代码详见：[ComfyUI-Selector-CoInput-Multilingual](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Selector-CoInput-Multilingual.git)
+
 20230816
 - 简体中文版整合包正式上线，预装超多模块组（简版5个，标准版25个），下载地址：https://pan.baidu.com/s/11znfR-gm0ieHHEVpOzVhCQ?pwd=e5cu 
 提取码：e5cu
