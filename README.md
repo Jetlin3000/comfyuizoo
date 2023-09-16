@@ -8,6 +8,9 @@
 
 ## 更新日志：
 
+20230916
+- 近期谷歌Colab禁止了免费层运行SD，所以专门做了Kaggle平台的免费云部署，每周30小时免费冲浪时间，项目详见：[Kaggle ComfyUI云部署1.0](https://www.kaggle.com/matuma3965/kaggle-xl1-0nl-comfy-1-zho)、[Kaggle ComfyUI云部署1.0临时空间版](https://www.kaggle.com/matuma3965/kaggletp-xl1-0nl-comfy-1-zho)
+
 20230909
 - 编写了ComfyUI选择器Selector + 综合输入CoInput模块组（双语版），代码详见：[ComfyUI-Selector-CoInput-Multilingual](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Selector-CoInput-Multilingual.git)
 
