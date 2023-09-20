@@ -29,7 +29,6 @@
 20230806 
 - 完成ComfyUI 20+常用节点汉化，代码详见：[ComfyUI 常用节点 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ZHO-Chinese/blob/master/custom_nodes/Zho_Main_Nodes_Chinese.py)
 
-   
   <details>
     <summary>节点列表</summary>
 
@@ -95,6 +94,9 @@
 - 完成ComfyUI Manager汉化 ，代码详见：[ComfyUI Manager 简体中文版](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Manager-Zh-Chinese.git)
 
 
+
+20230725 
+- SDXL ComfyUI工作流（多语言版）设计 + 论文详解，详见：[SDXL Workflow（multilingual version） in ComfyUI + Thesis explanation](https://github.com/ZHO-ZHO-ZHO/SDXL-Workflow-in-ComfyUI-Thesis-explanation)
 --------
 声明：我并不是ComfyUI的作者，我只是对界面做了汉化 + 常用节点汉化 + 新增了一个主题配色，原作者在[ComfyUI](https://github.com/comfyanonymous/ComfyUI)
 
