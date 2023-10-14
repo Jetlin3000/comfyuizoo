@@ -8,6 +8,10 @@
 
 ## 更新日志：
 
+20231014
+- 制作了ComfyUI插件与节点可视化环形树状图（Circular dendrogram），项目详见：[ComfyUI-Nodes-Visualization](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Nodes-Visualization)
+- 制作了中文版ComfyUI插件与节点汇总表，项目详见：[【腾讯文档】ComfyUI 插件（模组）+ 节点（模块）汇总 【Zho】](https://docs.qq.com/sheet/DUmRMZkZ1aGtHeExG)
+
 20230916
 - 近期谷歌Colab禁止了免费层运行SD，所以专门做了Kaggle平台的免费云部署，每周30小时免费冲浪时间，项目详见：[Kaggle ComfyUI云部署1.0](https://www.kaggle.com/matuma3965/kaggle-xl1-0nl-comfy-1-zho)、[Kaggle ComfyUI云部署1.0临时空间版](https://www.kaggle.com/matuma3965/kaggletp-xl1-0nl-comfy-1-zho)
 
