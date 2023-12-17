@@ -8,6 +8,18 @@
 
 ## 更新日志：
 
+20231216
+- 汉化并优化了Portrait Master，项目详见：[Portrait Master 简体中文版（肖像大师）](https://github.com/ZHO-ZHO-ZHO/comfyui-portrait-master-zh-cn)
+
+20231126
+- 制作了用于将文字转化为图像的项目，还可配合视频生成字幕或帧计数，项目详见：[ComfyUI-Text_Image-Composite](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Text_Image-Composite)
+
+20231112
+- 制作了一个专门用于创建或解释ComfyUI节点和工作流的GPTs：[ComfyUI Assistant](https://chat.openai.com/g/g-B3qi2zKGB-comfyui-assistant)，项目详见：[ComfyUI Assistant](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Assistant-GPTs)
+
+20231106
+- 修改并优化了TravelSuite节点，可用于生成可视化插值图像，项目详见：[ComfyUI_TravelSuite_Zho](https://github.com/ZHO-ZHO-ZHO/ComfyUI_TravelSuite_Zho)
+
 20231014
 - 制作了ComfyUI插件与节点可视化环形树状图（Circular dendrogram），项目详见：[ComfyUI-Nodes-Visualization](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Nodes-Visualization)
 - 制作了中文版ComfyUI插件与节点汇总表，项目详见：[【腾讯文档】ComfyUI 插件（模组）+ 节点（模块）汇总 【Zho】](https://docs.qq.com/sheet/DUmRMZkZ1aGtHeExG)
