@@ -25,6 +25,9 @@
 
 ## 更新日志：
 
+20231221
+- 制作了将 Gemini 引入 ComfyUI 的项目，支持 Gemini-pro  和 Gemini-pro-vision 双模型，目前已更新为 V1.1 版，项目详见：[Gemini in ComfyUI](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Gemini)
+
 20231218
 - Portrait Master 中文版 更新为V2.0版，新增6项参数，扩充2项参数，优化代码更新，项目详见：[Portrait Master 简体中文版（肖像大师）](https://github.com/ZHO-ZHO-ZHO/comfyui-portrait-master-zh-cn)
 
