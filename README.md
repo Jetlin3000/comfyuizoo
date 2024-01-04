@@ -25,8 +25,17 @@
 
 ## 更新日志：
 
+20240104
+
+- ComfyUI ArtGallery | Prompt Visualization V1.0 正式版上线，将提示词可视化，精选艺术家（280+）、艺术运动（130+）、艺术媒介（110+）、相机镜头（40+）、胶片相机（80+）等5大类，项目详见：[ComfyUI ArtGallery | Prompt Visualization](https://github.com/ZHO-ZHO-ZHO/ComfyUI-ArtGallery)
+
+20231229
+- ComfyUI Gemini 已更新为 V2.1 版，增加聊天机器人节点、修复60s超时bug、增加批量打标演示，项目详见：[Gemini in ComfyUI](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Gemini)
+
 20231221
 - 制作了将 Gemini 引入 ComfyUI 的项目，支持 Gemini-pro  和 Gemini-pro-vision 双模型，目前已更新为 V1.1 版，项目详见：[Gemini in ComfyUI](https://github.com/ZHO-ZHO-ZHO/ComfyUI-Gemini)
+
+- Portrait Master 中文版 更新为V2.2版，并登录 manager，无需手动安装了，项目详见：[Portrait Master 简体中文版（肖像大师）](https://github.com/ZHO-ZHO-ZHO/comfyui-portrait-master-zh-cn)
 
 20231218
 - Portrait Master 中文版 更新为V2.0版，新增6项参数，扩充2项参数，优化代码更新，项目详见：[Portrait Master 简体中文版（肖像大师）](https://github.com/ZHO-ZHO-ZHO/comfyui-portrait-master-zh-cn)
